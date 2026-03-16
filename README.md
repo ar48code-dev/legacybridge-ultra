@@ -1,47 +1,59 @@
-# LegacyBridge ULTRA
+# 🌉 LegacyBridge ULTRA 
+### *Bridging the gap between Legacy Systems and the Modern Cloud with Gemini 2.0 Flash Live*
 
-## Description
-A fast multimodal live mapping agent using Gemini 2.0 Flash Live. Built for the Gemini Live API Hackathon.
+[![Gemini 2.0](https://img.shields.io/badge/Gemini-2.0%20Flash%20Live-blue.svg)](https://ai.google.dev/)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB.svg)](https://react.dev/)
 
-## 🚀 One-Command Quick Start
-You can run the entire application (Backend + Frontend) with a single command! It will automatically ask you for your Google API Key and set everything up.
+LegacyBridge ULTRA is a multimodal AI agent built for the **Gemini Live API Hackathon**. It leverages the low-latency vision and voice capabilities of Gemini 2.0 Flash Live to observe legacy software UI, understand workflows, and automate the migration process while generating real-time training materials.
+
+---
+
+## ⚡ Quick Start (One Command)
+To run the entire application (Backend + Frontend) locally, copy and paste this command:
 
 ```bash
-chmod +x start.sh
-./start.sh
+cd ~/.gemini/antigravity/scratch/LegacyBridgeULTRA && chmod +x start.sh && ./start.sh
 ```
 
-## How to run locally (Manual Setup)
-If you prefer to run things manually:
+**Automated Setup Includes:**
+- 🔑 **API Key Configuration**: Securely prompts for Google AI Studio & GCP keys.
+- 🧹 **Process Management**: Automatically clears port conflicts (8080/5173).
+- 📦 **Dependency Handling**: Skips redundant installs for lightning-fast startup.
+- 🌍 **Auto-Browser**: Opens the premium dashboard immediately when ready.
 
-**1. Backend:**
-```bash
-cd backend
-cp .env.example .env
-# Edit .env and add your GOOGLE_API_KEY 
-pip install -r requirements.txt
-uvicorn main:app --port 8080
+---
+
+## ✨ Key Features
+- **🎙️ Multimodal Live Grounding**: Real-time vision/voice interaction with legacy UIs via Gemini 2.0 Flash Live.
+- **☸️ ADK Executor**: Automated UI navigation and data entry using Python-based GUI automation.
+- **✍️ Creative Storyteller**: Dynamically generates post-migration training guides and videos using Imagen 3 and Vertex AI.
+- **🌿 Green Mode**: Optimized logic to minimize token usage and cloud compute footprint.
+- **🛡️ Audit Logs**: Full session recording and field mapping stored in Firestore for compliance.
+
+---
+
+## 🏗️ Architecture
+```mermaid
+graph TD
+    A[Legacy UI] -->|Vision Stream| B(Gemini 2.0 Flash Live)
+    B -->|Tool Calls| C[ADK Executor]
+    C -->|Automation| A
+    B -->|Events| D[Creative Storyteller]
+    D -->|Imagen 3 / TTS| E[GCS Bucket]
+    D -->|Story| F[Frontend Dashboard]
+    B -->|Interaction| F
 ```
 
-**2. Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## 🛠️ Tech Stack
+- **Core**: Gemini-2.0-flash-live-001, google-genai SDK.
+- **Backend**: FastAPI (Python 3.10), PyAutoGUI, Firestore, Cloud Storage.
+- **Frontend**: React 19, Vite 8, TailwindCSS 4 (Black/Glassmorphism theme).
+- **Automation**: Xvfb (Virtual Display) for headless cloud execution.
 
-## Security & API Keys
-We use a `.env` file to securely store your `GOOGLE_API_KEY` and Google Cloud credentials. 
-- A `.env.example` file is provided in the repository. 
-- The actual `.env` file is excluded from git via `.gitignore` so your keys are **never** accidentally pushed to GitHub.
-- If you use the `./start.sh` script, it will securely prompt you for your keys and create the `.env` file locally for you.
+---
 
-## GCP Services
-- Cloud Run (Hosting)
-- Firestore (Logging, Proof of Work)
-- Cloud Storage (Generated Storyteller Assets)
-- Vertex AI (Live Agent Multimodal Models)
-- Text-to-Speech
+## 🛡️ Security
+API keys are never committed. The `start.sh` script generates a local `.env` file excluded via `.gitignore`. 
 
-## Architecture
-See `architecture/ARCHITECTURE.md`
+*Built with ❤️ by the Google Cloud Agentic Team for the Gemini Live API Hackathon.*

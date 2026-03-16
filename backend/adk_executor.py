@@ -1,14 +1,19 @@
 import os
+import time
+
+# Initialize virtual display for Cloud Run / Headless environment
+# This MUST happen before pyautogui is imported
+if os.environ.get('DISPLAY') is None:
+    print("🖥️ No DISPLAY detected. Starting Xvfb...")
+    os.system("Xvfb :99 -screen 0 1920x1080x24 &")
+    os.environ['DISPLAY'] = ':99'
+    time.sleep(2) # Give Xvfb a moment to start
+
 import pyautogui
 from PIL import ImageGrab
 from google.cloud import firestore
-import time
-db = firestore.Client()
 
-# Initialize virtual display for Cloud Run
-if os.environ.get('DISPLAY') is None:
-    os.system("Xvfb :99 -screen 0 1920x1080x24 &")
-    os.environ['DISPLAY'] = ':99'
+db = firestore.Client()
 
 class ADKExecutor:
     def __init__(self, session_id):

@@ -21,14 +21,8 @@ def ensure_gcs_bucket():
     except Exception as e:
         logger.warning(f"Could not verify GCS bucket: {e}")
 
-def init_virtual_display():
-    if os.environ.get('DISPLAY') is None:
-        os.system("Xvfb :99 -screen 0 1920x1080x24 &")
-        os.environ['DISPLAY'] = ':99'
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_virtual_display()
     ensure_gcs_bucket()
     logger.info("LegacyBridge ULTRA backend started")
     yield
