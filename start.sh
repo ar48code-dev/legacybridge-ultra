@@ -10,17 +10,30 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd "$SCRIPT_DIR"
 
 # 2. Check for .env and setup
+NEEDS_SETUP=false
 if [ ! -f "backend/.env" ]; then
-    echo "🔍 First time setup: Creating configuration..."
-    read -p "🔑 Enter your GOOGLE_API_KEY: " api_key
+    NEEDS_SETUP=true
+else
+    # Check if file has placeholder values
+    if grep -q "your_gemini_api_key_here" backend/.env || grep -q "your_gcp_project_id_here" backend/.env; then
+        echo "⚠️ Detected placeholder values in backend/.env"
+        NEEDS_SETUP=true
+    fi
+fi
+
+if [ "$NEEDS_SETUP" = true ]; then
+    echo "🔍 Configuration Setup..."
+    read -p "🔑 Enter your GOOGLE_API_KEY (Google AI Studio): " api_key
     read -p "☁️ Enter your GOOGLE_CLOUD_PROJECT ID: " project_id
     
+    # Create or overwrite with real values
     echo "GOOGLE_API_KEY=$api_key" > backend/.env
     echo "GOOGLE_CLOUD_PROJECT=$project_id" >> backend/.env
     echo "GREEN_MODE=false" >> backend/.env
     echo "GCS_BUCKET=legacybridge-training-videos" >> backend/.env
     [ ! -z "$DISPLAY" ] && echo "DISPLAY=$DISPLAY" >> backend/.env
     echo "VITE_WS_URL=ws://localhost:8080" >> backend/.env
+    echo "✅ backend/.env updated with your keys."
 else
     # Auto-fix DISPLAY if user is on local desktop
     if [ ! -z "$DISPLAY" ] && ! grep -q "DISPLAY=$DISPLAY" backend/.env; then
