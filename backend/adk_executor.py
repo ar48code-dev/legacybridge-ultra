@@ -9,8 +9,14 @@ if os.environ.get('DISPLAY') is None:
     os.environ['DISPLAY'] = ':99'
     time.sleep(2) # Give Xvfb a moment to start
 
-import pyautogui
-from PIL import ImageGrab
+import contextlib
+import sys
+
+# Silence noisy imports (like tkinter warnings)
+with contextlib.redirect_stdout(None), contextlib.redirect_stderr(None):
+    import pyautogui
+    from PIL import ImageGrab
+
 from google.cloud import firestore
 
 db = firestore.Client()
