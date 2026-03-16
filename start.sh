@@ -33,31 +33,65 @@ fi
 lsof -ti:8080 | xargs kill -9 2>/dev/null
 lsof -ti:5173 | xargs kill -9 2>/dev/null
 
-# 4. Start Backend
-echo "📦 Starting Backend (API)..."
+# 4. Check Dependencies
+echo "📦 Checking Dependencies..."
+cd backend
+if [ ! -d "venv" ] && [ -f "requirements.txt" ]; then
+    pip install -r ../requirements.txt 2>/dev/null | grep -v "already satisfied"
+fi
+cd ..
+
+cd frontend
+if [ ! -d "node_modules" ]; then
+    echo "⏳ Initial npm install (this may take a minute)..."
+    npm install --legacy-peer-deps
+fi
+cd ..
+
+# 5. Start Backend
+echo "🚀 Starting Backend (API)..."
 cd backend
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8080 --log-level error &
 BACKEND_PID=$!
 cd ..
 
-# 5. Start Frontend
+# 6. Start Frontend
 echo "💻 Starting Frontend (UI)..."
 cd frontend
 npm run dev -- --logLevel silent &
 FRONTEND_PID=$!
 cd ..
 
-# 6. Final Polish
+# 7. Final Polish
 echo "============================================="
 echo "🎉 SUCCESS: LegacyBridge ULTRA is running!"
 echo "============================================="
-echo "🌍 Opening the App in your browser..."
-sleep 3
-# Try to open browser automatically
-if command -v xdg-open > /dev/null; then
-    xdg-open http://localhost:5173 > /dev/null 2>&1
-elif command -v open > /dev/null; then
-    open http://localhost:5173 > /dev/null 2>&1
+echo "🌍 Waiting for UI to be ready..."
+
+# Function to check if server is up
+wait_for_server() {
+  local url=$1
+  local max_attempts=20
+  local attempt=1
+  while [ $attempt -le $max_attempts ]; do
+    if curl -s -o /dev/null -w "%{http_code}" "$url" | grep -q "200"; then
+      return 0
+    fi
+    sleep 1
+    attempt=$((attempt + 1))
+  done
+  return 1
+}
+
+if wait_for_server "http://localhost:5173"; then
+    echo "✨ Dashboard is ready! Opening browser..."
+    if command -v xdg-open > /dev/null; then
+        xdg-open http://localhost:5173 > /dev/null 2>&1
+    elif command -v open > /dev/null; then
+        open http://localhost:5173 > /dev/null 2>&1
+    fi
+else
+    echo "⚠️  UI is taking longer than expected. Please open manually: http://localhost:5173"
 fi
 
 echo "➡️  Frontend: http://localhost:5173"
@@ -67,6 +101,6 @@ echo "💡 To stop, press Ctrl+C"
 echo "============================================="
 
 # Wait and handle shutdown
-trap "echo 'Stopping...'; kill $BACKEND_PID; kill $FRONTEND_PID; exit" INT
+trap "echo ''; echo '🛑 Stopping services...'; kill $BACKEND_PID; kill $FRONTEND_PID; exit" INT
 wait
 
