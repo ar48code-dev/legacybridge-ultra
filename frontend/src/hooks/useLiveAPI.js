@@ -40,8 +40,14 @@ const useLiveAPI = () => {
       
       wsRef.current.onopen = () => {
         console.log("WebSocket connected to LegacyBridge Ultra WebSocket Handler");
-        wsRef.current.send(JSON.stringify({ type: "init", green_mode: isGreenMode }));
-        // Logic to stream Int16 PCM and JPEG chunks 
+        
+        // Pass UI-provided keys to backend
+        wsRef.current.send(JSON.stringify({ 
+          type: "init", 
+          green_mode: isGreenMode,
+          google_api_key: localStorage.getItem('GOOGLE_API_KEY'),
+          google_cloud_project: localStorage.getItem('GOOGLE_CLOUD_PROJECT')
+        }));
       };
       
       wsRef.current.onmessage = (event) => {

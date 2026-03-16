@@ -1,8 +1,79 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import useLiveAPI from './hooks/useLiveAPI';
+
+const SettingsModal = ({ isOpen, onClose, onSave }) => {
+  const [apiKey, setApiKey] = useState(localStorage.getItem('GOOGLE_API_KEY') || '');
+  const [projectId, setProjectId] = useState(localStorage.getItem('GOOGLE_CLOUD_PROJECT') || '');
+
+  const handleSave = () => {
+    localStorage.setItem('GOOGLE_API_KEY', apiKey);
+    localStorage.setItem('GOOGLE_CLOUD_PROJECT', projectId);
+    onSave({ apiKey, projectId });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
+      <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl p-8 shadow-3xl shadow-blue-500/10">
+        <h3 className="text-2xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 flex items-center">
+          <span className="mr-3">⚙️</span> SYSTEM HUD
+        </h3>
+        
+        <div className="space-y-6">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-blue-400/70 mb-2">Google AI Studio Key</label>
+            <input 
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="AIzaSy..."
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all placeholder:text-zinc-700"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-blue-400/70 mb-2">GCP Project ID</label>
+            <input 
+              type="text"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              placeholder="my-project-123"
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all placeholder:text-zinc-700"
+            />
+          </div>
+        </div>
+
+        <div className="mt-10 flex space-x-4">
+          <button 
+            onClick={onClose}
+            className="flex-1 px-6 py-3 rounded-xl border border-white/10 text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave}
+            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:scale-[1.02] transition-all active:scale-95"
+          >
+            Save Matrix
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function App() {
   const { startCapture, stopCapture, isCapturing, isGreenMode, toggleGreenMode } = useLiveAPI();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Auto-open settings if keys are missing
+  useEffect(() => {
+    if (!localStorage.getItem('GOOGLE_API_KEY')) {
+      setIsSettingsOpen(true);
+    }
+  }, []);
 
   return (
     <div 
@@ -35,6 +106,13 @@ function App() {
           </div>
           
           <div className="flex items-center space-x-6">
+            <button 
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-blue-400 hover:text-blue-300"
+              title="System Settings"
+            >
+              <span className="text-xl">⚙️</span>
+            </button>
             <button 
               onClick={toggleGreenMode}
               className={`group relative flex items-center space-x-3 px-6 py-2.5 rounded-xl font-bold transition-all duration-500 overflow-hidden ${
@@ -172,6 +250,12 @@ function App() {
            </p>
         </footer>
       </div>
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        onSave={() => console.log('Matrix Saved')}
+      />
     </div>
   );
 }

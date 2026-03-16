@@ -36,16 +36,26 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                 if msg_type == "init":
                     # Read green_mode from frontend message first
                     green_mode = msg.get("green_mode", False)
-                    # Fallback to environment variable
+                    
+                    # Read dynamic keys from UI if provided
+                    ui_api_key = msg.get("google_api_key")
+                    ui_project_id = msg.get("google_cloud_project")
+                    
+                    if ui_api_key:
+                        os.environ["GOOGLE_API_KEY"] = ui_api_key
+                    if ui_project_id:
+                        os.environ["GOOGLE_CLOUD_PROJECT"] = ui_project_id
+
+                    # Fallback to environment variable for green_mode
                     if not green_mode:
                         green_mode = os.environ.get("GREEN_MODE", "false").lower() == "true"
                     
-                    logger.info(f"Session {session_id} started. Green Mode: {green_mode}")
+                    logger.info(f"Session {session_id} initialized with UI credentials. Green Mode: {green_mode}")
                     
                     # Store on adk for logging
                     adk.green_mode = green_mode
 
-                    # Initialize Live session with green_mode flag
+                    # Initialize Live session
                     live = GeminiLiveSession(session_id, green_mode=green_mode)
                     live_task = asyncio.create_task(live.start(tool_handler))
                     
